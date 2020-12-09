@@ -8,6 +8,7 @@ const serverURL1 = 'http://localhost:1234/1';
 const serverURLNaked = 'http://localhost:1234/';
 const publicServerURL = 'http://domain.com/parse';
 const publicServerURLNaked = 'http://domain.com/';
+const publicServerURLLong = 'https://domain.com/something/really/long';
 
 const headers = {
   'Content-Type': 'application/json',
@@ -22,6 +23,26 @@ describe('batch', () => {
       '/parse/classes/Object'
     );
 
+    expect(internalURL).toEqual('/classes/Object');
+  });
+
+  it('should return the proper url given a public url-only path', () => {
+    const originalURL = '/something/really/long/batch';
+    const internalURL = batch.makeBatchRoutingPathFunction(
+      originalURL,
+      serverURL,
+      publicServerURLLong
+    )('/parse/classes/Object');
+    expect(internalURL).toEqual('/classes/Object');
+  });
+
+  it('should return the proper url given a server url-only path', () => {
+    const originalURL = '/parse/batch';
+    const internalURL = batch.makeBatchRoutingPathFunction(
+      originalURL,
+      serverURL,
+      publicServerURLLong
+    )('/parse/classes/Object');
     expect(internalURL).toEqual('/classes/Object');
   });
 
@@ -218,9 +239,9 @@ describe('batch', () => {
                 expect(databaseAdapter.createObject.calls.argsFor(0)[3]).toBe(
                   databaseAdapter.createObject.calls.argsFor(1)[3]
                 );
-                expect(results.map(result => result.get('key')).sort()).toEqual(
-                  ['value1', 'value2']
-                );
+                expect(
+                  results.map(result => result.get('key')).sort()
+                ).toEqual(['value1', 'value2']);
                 done();
               });
             });
